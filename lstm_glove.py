@@ -87,6 +87,9 @@ class NBatchLogger(Callback):
         self.step = 0
         self.display = 1000
         self.metric_cache = {}
+        self.losses = []
+        self.accs = []
+        self.logs = []
 
     def on_batch_end(self, batch, logs={}):
         self.step += 1
@@ -101,9 +104,15 @@ class NBatchLogger(Callback):
                     metrics_log += ' - %s: %.4f' % (k, val)
                 else:
                     metrics_log += ' - %s: %.4e' % (k, val)
+                    
+                if k == 'loss':
+                    self.losses.append(val)
+                if k == 'acc':
+                    self.accs.append(val)
             print('\nstep: {}/{} ... {}'.format(self.step,
                                           self.params['steps'],
                                           metrics_log))
+            self.logs.append(metrics_log)
             self.metric_cache.clear()
 
 class F1MetricsLogger(Callback):
@@ -140,7 +149,9 @@ hist = model.fit(train_x, train_y, batch_size=batch_size, epochs=epochs, verbose
 print(hist.history)
 prefix = 'lstm_glove_epoch_5_150d'
 model.save(prefix + '.h5')
-pickle.dump(nbatch.metric_cache, open(prefix + '_nbatch.p', 'wb'))
+pickle.dump(nbatch.logs, open(prefix + '_nbatch.p', 'wb'))
+pickle.dump(nbatch.losses, open(prefix + '_losses.p', 'wb'))
+pickle.dump(nbatch.accs, open(prefix + '_accs.p', 'wb'))
 pickle.dump(f1.val_f1s, open(prefix + '_f1s.p', 'wb'))
 pickle.dump(f1.val_recalls, open(prefix + '_recalls.p', 'wb'))
 pickle.dump(f1.val_precisions, open(prefix + '_precisions.p', 'wb'))
