@@ -13,14 +13,14 @@ from keras.layers import GlobalMaxPooling1D, GlobalAveragePooling1D, concatenate
 from keras.models import Model
 
 # import files
-EMBEDDING_FILE = "glove/toxic_vectors_50.txt"
+EMBEDDING_FILE = "glove/toxic_vectors_150.txt"
 train = pd.read_csv('data/clean_train.csv')
 test = pd.read_csv('data/clean_test.csv')
 
 # constants
 max_features=100000
 maxlen=150
-embed_size=50
+embed_size=150
 
 # data
 classes = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
@@ -138,9 +138,9 @@ print("begin training")
 
 hist = model.fit(train_x, train_y, batch_size=batch_size, epochs=epochs, verbose=1, callbacks=[nbatch, f1, history], validation_split=0.1)
 print(hist.history)
-prefix = 'lstm_glove_epoch_5'
+prefix = 'lstm_glove_epoch_5_150d'
 model.save(prefix + '.h5')
 pickle.dump(nbatch.metric_cache, open(prefix + '_nbatch.p', 'wb'))
 pickle.dump(f1.val_f1s, open(prefix + '_f1s.p', 'wb'))
 pickle.dump(f1.val_recalls, open(prefix + '_recalls.p', 'wb'))
-pickle.dump(f1.val_precisions, open(perfix + '_precisions.p', 'wb'))
+pickle.dump(f1.val_precisions, open(prefix + '_precisions.p', 'wb'))
